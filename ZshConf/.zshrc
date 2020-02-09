@@ -1,0 +1,116 @@
+#  _____    _      ____             __
+# |__  /___| |__  / ___|___  _ __  / _|
+#   / // __| '_ \| |   / _ \| '_ \| |_
+#  / /_\__ \ | | | |__| (_) | | | |  _|
+# /____|___/_| |_|\____\___/|_| |_|_|
+# ===================================================
+
+bindkey -v # vi-mode
+bindkey -M vicmd '^ ' end-of-line 
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block, everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# If you come from bash you might have to change your $PATH.
+# export PATH=$HOME/bin:/usr/local/bin:$PATH
+ 
+# Path to your oh-my-zsh installation.
+source ~/.zplugin/bin/zplugin.zsh
+# export ZSH=/Users/zebra/.oh-my-zsh
+
+zinit light zdharma/fast-syntax-highlighting
+
+# zinit ice wait lucid atload'_zsh_autosuggest_start' 
+zinit light zsh-users/zsh-autosuggestions
+
+# 补全快捷键
+# bindkey '^ ' autosuggest-accept
+
+# 加载 OMZ 的 git 库(本地)
+zinit snippet ~/.oh-my-zsh/lib/git.zsh
+# 加载 OMZ 的 git 插件(本地)
+zplugin ice lucid wait='0'
+zinit snippet ~/.oh-my-zsh/plugins/git/git.plugin.zsh
+zinit snippet ~/.oh-my-zsh/plugins/autojump/autojump.plugin.zsh
+
+ENABLE_CORRECTION="true" # 命令自动纠错
+
+
+# vi-mode光标样式(插入和普通模式)
+function zle-keymap-select {
+	if [[ ${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
+		echo -ne '\e[1 q'
+	elif [[ ${KEYMAP} == main ]] || [[ ${KEYMAP} == viins ]] || [[ ${KEYMAP} = '' ]] || [[ $1 = 'beam' ]]; then
+		echo -ne '\e[5 q'
+  fi
+}
+zle -N zle-keymap-select
+
+# Use beam shape cursor on startup.启动时光标样式
+echo -ne '\e[5 q'
+
+# Use beam shape cursor for each new prompt.光标样式
+preexec() {
+	echo -ne '\e[5 q'
+}
+
+_fix_cursor() {
+	echo -ne '\e[5 q'
+}
+precmd_functions+=(_fix_cursor)
+
+#设置s键为neofetch(显示系统信息可视化)
+alias s='neofetch'
+alias ls='ls -a'
+
+# powerrlevel10k 主题 在终端输入p10k configure启动设置向导
+zplugin ice depth=1; zplugin light romkatv/powerlevel10k
+ 
+ 
+# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
+# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
+# Example format: plugins=(rails git textmate ruby lighthouse)
+# Add wisely, as too many plugins slow down shell startup.
+# plugins=(
+#   git
+# )
+ 
+# source $ZSH/oh-my-zsh.sh
+ 
+# User configuration
+ 
+# export MANPATH="/usr/local/man:$MANPATH"
+ 
+# You may need to manually set your language environment
+# export LANG=en_US.UTF-8
+ 
+# Preferred editor for local and remote sessions
+# if [[ -n $SSH_CONNECTION ]]; then
+#   export EDITOR='vim'
+# else
+#   export EDITOR='mvim'
+# fi
+ 
+# Compilation flags
+# export ARCHFLAGS="-arch x86_64"
+ 
+# ssh
+# export SSH_KEY_PATH="~/.ssh/rsa_id"
+ 
+# Set personal aliases, overriding those provided by oh-my-zsh libs,
+# plugins, and themes. Aliases can be placed here, though oh-my-zsh
+# users are encouraged to define aliases within the ZSH_CUSTOM folder.
+# For a full list of active aliases, run `alias`.
+#
+# Example aliases
+# alias zshconfig="mate ~/.zshrc"
+# alias ohmyzsh="mate ~/.oh-my-zsh" 
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+
+

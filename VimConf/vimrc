@@ -1,0 +1,361 @@
+set nocompatible "关闭vim兼容模式
+syntax on "高亮
+let loaded_matchparen = 1 "关闭括号高亮插件"
+set scrolloff=5 "浏览时底部始终冻结5行
+set showmatch "高亮显示对应的括号
+set belloff=all "不发出嘟嘟提示音"
+"set matchtime=5 "括号高亮时间(十分之一秒)
+"set cursorline "当前行高亮
+let g:mapleader=" "
+set clipboard=unnamed,unnamedplus  "y/p/d等命令可以复制到系统剪贴板
+au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|else|exe "norm $"|endif|endif  "记住上次编辑光标位置
+"使用jk替代esc
+inoremap jk <C-[>
+"括号自动补全
+inoremap ' ''<ESC>i
+inoremap " ""<ESC>i
+inoremap ( ()<ESC>i
+inoremap [ []<ESC>i
+inoremap { {<CR>}<ESC>O
+
+"默认指令超时是 1000 ms，如果不想那么长的话，你可以在 vimrc 中设置更短一些
+"set timeoutlen=200
+
+nnoremap K 5k
+nnoremap J 5j
+noremap L $
+noremap H ^
+noremap <LEADER><CR> :nohlsearch<CR> "取消搜索高亮
+inoremap <LEADER><LEADER> <Right> "插入模式光标移动
+
+
+"分屏快捷键
+map sl :set splitright<CR>:vsplit<CR>
+map sh :set nosplitright<CR>:vsplit<CR>
+map sk :set nosplitbelow<CR>:split<CR>
+map sj :set splitbelow<CR>:split<CR>
+
+noremap <LEADER>k <C-w>k
+noremap <LEADER>j <C-w>j
+noremap <LEADER>l <C-w>l
+noremap <LEADER>h <C-w>h
+
+set noerrorbells "关闭错误提示音
+set guifont=Meslo\ LG\ M\ Regular\ for\ Powerline:h14 "字体和大小
+autocmd BufWritePre *.py :%s/\s\+$//e "自动删除py行尾空格
+"标识空白字符
+"hi BadWhitespace guifg=gray guibg=gray ctermfg=gray ctermbg=gray
+"自动删除指定文件类型的行末空格
+au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
+set hlsearch "搜索高亮(/加搜索内容)
+"关闭搜索高亮指令"
+exec "nohlsearch"
+set incsearch "搜索实时高亮
+set ignorecase "忽略搜索大小写
+set smartcase "智能大小写匹配
+if version >= 603
+	set helplang=cn
+    set langmenu=zn_CN.UTF-8
+endif
+
+"识别多种文件格式
+filetype on
+filetype indent on
+filetype plugin on
+filetype plugin indent on
+
+" 设置状态行显示常用信息
+" %F 完整文件路径名
+" %m 当前缓冲被修改标记
+" %m 当前缓冲只读标记
+" %h 帮助缓冲标记
+" %w 预览缓冲标记
+" %Y 文件类型
+" %b ASCII值
+" %B 十六进制值
+" %l 行数
+" %v 列数
+" %p 当前行数占总行数的的百分比
+" %L 总行数
+" %{...} 评估表达式的值，并用值代替
+" %{"[fenc=".(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?"+":"")."]"} 显示文件编码
+" %{&ff} 显示文件类型
+"set statusline=%F%m%r%h%w%=\ [ft=%Y]\ %{\"[fenc=\".(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\"+\":\"\").\"]\"}\ [ff=%{&ff}]\ [asc=%03.3b]\ [hex=%02.2B]\ [pos=%04l,%04v][%p%%]\ [len=%L]
+
+set ambiwidth=double
+" 设置 laststatus = 0 ，不显式状态行
+" 设置 laststatus = 1 ，仅当窗口多于一个时，显示状态行
+" 设置 laststatus = 2 ，总是显式状态行
+set laststatus=2
+let g:airline#extensions#tabline#enabled = 1 "仅打开一个选项卡时自动显示所有缓冲区
+
+let &t_ut='' "背景色清除(透明)
+set backspace=indent,eol,start " 允许退格键删除缩进、换行符、允许删除进入插入模式前已有的内容
+set mouse=a "允许使用鼠标操作
+set encoding=utf-8
+set number "显示行号
+set relativenumber "显示以行为中心的行号
+let &t_SI = "\<Esc>]50;CursorShape=1\x7" "切换命令与插入模式下的光标样式
+let &t_SR = "\<Esc>]50;CursorShape=2\x7"
+let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+set showcmd "右下角显示命令字母
+set wrap "自动换行
+set wildmenu "tab补全提示
+"可视化剪贴板,需要coc-yank"
+nnoremap <silent> <Leader>y  :<C-u>CocList -A --normal yank<cr>
+
+"************************************************
+
+call plug#begin('~/.vim/plugged') "开始，指定插件安装目录
+
+Plug 'asins/vimcdoc' "中文文档
+
+Plug 'tell-k/vim-autopep8' "代码格式化
+
+Plug 'junegunn/vim-easy-align' "快速对齐
+
+Plug 'neoclide/coc.nvim', {'branch': 'release'} "插件管理
+
+Plug 'junegunn/vim-peekaboo' "寄存器可视化
+
+Plug 'bling/vim-bufferline' "vim缓冲线
+
+Plug 'vim-airline/vim-airline-themes' "状态栏主题
+let g:airline_theme='badwolf'
+
+Plug 'tpope/vim-fugitive' "状态栏git集成
+
+"主题配色
+Plug 'connorholyday/vim-snazzy'
+Plug 'morhetz/gruvbox'
+Plug 'vim-airline/vim-airline' "状态栏信息
+Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }  "触发时才加载
+Plug 'Xuyuanp/nerdtree-git-plugin' "git图标扩展
+"自动补全 如果提示shtudown则运行 cd ~/.vim/plugged/YouCompleteMe./install.py
+Plug 'Valloric/YouCompleteMe'
+
+" Error checking 错误和语法检查
+Plug 'dense-analysis/ale'
+
+" Taglist 查看标签与修改历史记录
+Plug 'majutsushi/tagbar', { 'on': 'TagbarOpenAutoClose' }
+
+
+" Markdown --md文件实时预览 无法使用的话请检查yarn是否安装
+" 如果无法启动预览，请到插件的 app 目录执行 yarn install 或者删了重新装。
+Plug 'iamcco/markdown-preview.nvim', { 'do': ':call mkdp#util#install()', 'for': 'markdown', 'on': 'MarkdownPreview' }
+
+
+Plug 'dhruvasagar/vim-table-mode', { 'on': 'TableModeToggle' } "表格插件
+Plug 'vimwiki/vimwiki'
+
+Plug 'dhruvasagar/vim-table-mode', { 'on': 'TableModeToggle' } "
+
+Plug 'nathanaelkane/vim-indent-guides' "缩进颜色显示
+
+call plug#end()  "结束
+
+"*************************************************
+
+"一键运行脚本
+map <F5> :call CompileRunGcc()<CR>
+func! CompileRunGcc()
+    exec "w"
+    if &filetype == 'c'
+        exec "!g++ % -o %<"
+        exec "!time ./%<"
+    elseif &filetype == 'cpp'
+        exec "!g++ % -o %<"
+        exec "!time ./%<"
+    elseif &filetype == 'java'
+        exec "!javac %"
+        exec "!time java %<"
+    elseif &filetype == 'sh'
+        :!time bash %
+    elseif &filetype == 'python'
+        exec "!time python3.8 %"
+    elseif &filetype == 'html'
+        exec "!firefox % &"
+    elseif &filetype == 'go'
+        exec "!go build %<"
+        exec "!time go run %"
+    elseif &filetype == 'mkd'
+        exec "!~/.vim/markdown.pl % > %.html &"
+        exec "!firefox %.html &"
+    endif
+endfunc
+
+
+
+" ==
+" ==junegunn/vim-easy-align' 配置 快速对齐
+" ==
+vmap ga <Plug>(EasyAlign)
+nmap ga <Plug>(EasyAlign)
+if !exists('g:easy_align_delimiters')
+  let g:easy_align_delimiters = {}
+endif
+let g:easy_align_delimiters['#'] = { 'pattern': '#', 'ignore_groups': ['String'] }
+
+
+" ==
+" ==设置NerdTree
+" ==
+"map <F3> :NERDTreeMirror<CR> "开关快捷键
+map <F3> :NERDTreeToggle<CR> "开关快捷键
+
+
+" ==
+" == NERDTree-git图标扩展
+" ==
+let g:NERDTreeIndicatorMapCustom = {
+    \ "Modified"  : "✹",
+    \ "Staged"    : "✚",
+    \ "Untracked" : "✭",
+    \ "Renamed"   : "➜",
+    \ "Unmerged"  : "═",
+    \ "Deleted"   : "✖",
+    \ "Dirty"     : "✗",
+    \ "Clean"     : "✔︎",
+    \ "Unknown"   : "?"
+    \ }
+
+" ===
+" === ale 语法提示
+" ===
+let b:ale_linters = ['flake8']
+let b:ale_fixers = ['autopep8']
+"始终开启标志列
+let g:ale_sign_column_always = 1
+let g:ale_set_highlights = 0
+"自定义error和warning图标
+let g:ale_sign_error = '✗'
+let g:ale_sign_warning = '⚡'
+"在vim自带的状态栏中整合ale
+let g:ale_statusline_format = ['✗ %d', '⚡ %d', '✔ OK']
+"显示Linter名称,出错或警告等相关信息
+let g:ale_echo_msg_error_str = 'E'
+let g:ale_echo_msg_warning_str = 'W'
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+"普通模式下，sp前往上一个错误或警告，sn前往下一个错误或警告
+nmap sp <Plug>(ale_previous_wrap)
+nmap sn <Plug>(ale_next_wrap)
+"<Leader>s触发/关闭语法检查
+"nmap <Leader>s :ALEToggle<CR>
+"<Leader>d查看错误或警告的详细信息
+nmap <Leader>d :ALEDetail<CR>
+
+
+
+" ===
+" === You Complete ME
+" ===
+" 自动补全配置
+set completeopt=longest,menu	"让Vim的补全菜单行为与一般IDE一致(参考VimTip1228)
+autocmd InsertLeave * if pumvisible() == 0|pclose|endif	"离开插入模式后自动关闭预览窗口
+"回车即选中当前项
+inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"
+"上下左右键的行为 会显示其他信息
+inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
+inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
+inoremap <expr> <PageDown> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<PageDown>"
+inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
+
+"youcompleteme  修改默认tab  s-tab 和自动补全冲突
+let g:ycm_key_list_select_completion = ['<Down>', '<TAB>']
+let g:ycm_key_list_previous_completion = ['<Up>', '<S-TAB>']
+let g:ycm_confirm_extra_conf=0 "关闭加载.ycm_extra_conf.py提示
+
+let g:ycm_collect_identifiers_from_tags_files=1	" 开启 YCM 基于标签引擎
+let g:ycm_min_num_of_chars_for_completion=2	" 从第2个键入字符就开始罗列匹配项
+let g:ycm_cache_omnifunc=0	" 禁止缓存匹配项,每次都重新生成匹配项
+let g:ycm_seed_identifiers_with_syntax=1	" 语法关键字补全
+"force recomile with syntastic
+"nnoremap <F5> :YcmForceCompileAndDiagnostics<CR>	
+"nnoremap <leader>lo :lopen<CR>	"open locationlist
+"nnoremap <leader>lc :lclose<CR> "close locationlist
+"inoremap <leader><leader> <C-x><C-o>
+ 
+"在注释输入中也能补全
+let g:ycm_complete_in_comments = 1
+"在字符串输入中也能补全
+let g:ycm_complete_in_strings = 1
+"注释和字符串中的文字也会被收入补全
+let g:ycm_collect_identifiers_from_comments_and_strings = 0
+"跳转到定义处
+nnoremap <leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR>  
+"let g:ycm_python_interpreter_path = "/Library/Frameworks/Python.framework/Versions/3.8/bin/python3.8"
+"let g:ycm_python_binary_path = "/Library/Frameworks/Python.framework/Versions/3.8/bin/python3.8"
+
+" ===
+" === snazzy 主题设置
+" ===
+
+colorscheme gruvbox
+set background=dark    " Setting dark mode
+"let g:gruvbox_italic=1
+"color gruvbox "启用配色
+let g:gruvbox_gruvbox_contrast_dark = "hard"
+let g:gruvbox_termcolors = '256'
+
+" ===
+" === MarkdownPreview -----markdown扩展
+" ===
+let g:mkdp_auto_start = 1
+let g:mkdp_auto_close = 1
+let g:mkdp_refresh_slow = 0
+let g:mkdp_command_for_global = 0
+let g:mkdp_open_to_the_world = 0
+let g:mkdp_open_ip = ''
+let g:mkdp_browser = ''
+let g:mkdp_echo_preview_url = 0
+let g:mkdp_browserfunc = ''
+let g:mkdp_preview_options = {
+    \ 'mkit': {},
+    \ 'katex': {},
+    \ 'uml': {},
+    \ 'maid': {},
+    \ 'disable_sync_scroll': 0,
+    \ 'sync_scroll_type': 'middle',
+    \ 'hide_yaml_meta': 1
+    \ }
+let g:mkdp_markdown_css = ''
+let g:mkdp_highlight_css = ''
+let g:mkdp_port = ''
+let g:mkdp_page_title = '「${name}」'
+
+
+" ===
+" === Python-syntax  --语法高亮插件 开启会导致尾部空格出现红色
+" ===
+"let g:python_highlight_all = 1 "启用=0
+"let g:python_slow_sync = 0 "慢速显示
+
+" ===
+" === py文件格式设置
+" ===
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set textwidth=79
+set expandtab
+set autoindent
+set fileformat=unix
+
+
+" ===
+" === tagbar 标签插件
+" ===
+nmap  <F8>：TagbarToggle <CR> "tahbar开关快捷键
+
+
+" ===
+" === vim-indent-guide 缩进高亮显示
+" ===
+let g:indent_guides_guide_size = 1
+let g:indent_guides_start_level = 2
+let g:indent_guides_enable_on_vim_startup = 1
+let g:indent_guides_color_change_percent = 1
+"silent! unmap <LEADER>ig
+"autocmd WinEnter * silent! unmap <LEADER>ig
+

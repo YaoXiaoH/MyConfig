@@ -67,7 +67,7 @@
 
 请检查网络环境是否开启了代理，如以开启请关闭代理后尝试执行
 
-`$git config --global --unset http.proxy`
+`git config --global --unset http.proxy`
 
 `git config --global --unset https.proxy`
 

@@ -9,6 +9,8 @@ set belloff=all "不发出嘟嘟提示音"
 let g:mapleader=" "
 set clipboard=unnamed,unnamedplus  "y/p/d等命令可以复制到系统剪贴板
 au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|else|exe "norm $"|endif|endif  "记住上次编辑光标位置
+"更改强制退出
+noremap Q :q!
 "使用jk替代esc
 inoremap jk <C-[>
 "括号自动补全
@@ -16,7 +18,7 @@ inoremap ' ''<ESC>i
 inoremap " ""<ESC>i
 inoremap ( ()<ESC>i
 inoremap [ []<ESC>i
-inoremap { {<CR>}<ESC>O
+" inoremap { {<CR>}<ESC>O
 
 "默认指令超时是 1000 ms，如果不想那么长的话，你可以在 vimrc 中设置更短一些
 "set timeoutlen=200
@@ -26,7 +28,7 @@ nnoremap J 5j
 noremap L $
 noremap H ^
 noremap <LEADER><CR> :nohlsearch<CR> "取消搜索高亮
-inoremap <LEADER><LEADER> <Right> "插入模式光标移动
+"inoremap <LEADER><LEADER> <Right> "插入模式光标移动
 
 
 "分屏快捷键
@@ -46,7 +48,7 @@ autocmd BufWritePre *.py :%s/\s\+$//e "自动删除py行尾空格
 "标识空白字符
 "hi BadWhitespace guifg=gray guibg=gray ctermfg=gray ctermbg=gray
 "自动删除指定文件类型的行末空格
-au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
+"au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
 set hlsearch "搜索高亮(/加搜索内容)
 "关闭搜索高亮指令"
 exec "nohlsearch"
@@ -87,7 +89,9 @@ set ambiwidth=double
 " 设置 laststatus = 1 ，仅当窗口多于一个时，显示状态行
 " 设置 laststatus = 2 ，总是显式状态行
 set laststatus=2
-let g:airline#extensions#tabline#enabled = 1 "仅打开一个选项卡时自动显示所有缓冲区
+let g:airline#extensions#tabline#enabled = 1 "顶部显示所有缓冲区标签
+let g:airline#extensions#coc#enabled = 1 "显示vim-coc状态栏
+let g:airline#extensions#whitespace#enabled = 0 "状态栏不显示行尾空格警告
 
 let &t_ut='' "背景色清除(透明)
 set backspace=indent,eol,start " 允许退格键删除缩进、换行符、允许删除进入插入模式前已有的内容
@@ -101,20 +105,17 @@ let &t_EI = "\<Esc>]50;CursorShape=0\x7"
 set showcmd "右下角显示命令字母
 set wrap "自动换行
 set wildmenu "tab补全提示
-"可视化剪贴板,需要coc-yank"
-nnoremap <silent> <Leader>y  :<C-u>CocList -A --normal yank<cr>
-
 "************************************************
 
 call plug#begin('~/.vim/plugged') "开始，指定插件安装目录
 
 Plug 'asins/vimcdoc' "中文文档
 
-Plug 'tell-k/vim-autopep8' "代码格式化
+Plug 'Chiel92/vim-autoformat' "代码格式化
 
-Plug 'junegunn/vim-easy-align' "快速对齐
+Plug 'junegunn/vim-easy-align' "多行快速对齐
 
-Plug 'neoclide/coc.nvim', {'branch': 'release'} "插件管理
+Plug 'tpope/vim-fugitive' "Git管理器
 
 Plug 'junegunn/vim-peekaboo' "寄存器可视化
 
@@ -131,22 +132,23 @@ Plug 'morhetz/gruvbox'
 Plug 'vim-airline/vim-airline' "状态栏信息
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }  "触发时才加载
 Plug 'Xuyuanp/nerdtree-git-plugin' "git图标扩展
+
 "自动补全 如果提示shtudown则运行 cd ~/.vim/plugged/YouCompleteMe./install.py
-Plug 'Valloric/YouCompleteMe'
+"Plug 'Valloric/YouCompleteMe'
 
 " Error checking 错误和语法检查
 Plug 'dense-analysis/ale'
-
 " Taglist 查看标签与修改历史记录
 Plug 'majutsushi/tagbar', { 'on': 'TagbarOpenAutoClose' }
 
-
 " Markdown --md文件实时预览 无法使用的话请检查yarn是否安装
 " 如果无法启动预览，请到插件的 app 目录执行 yarn install 或者删了重新装。
-Plug 'iamcco/markdown-preview.nvim', { 'do': ':call mkdp#util#install()', 'for': 'markdown', 'on': 'MarkdownPreview' }
+Plug 'iamcco/markdown-preview.nvim', { 'do': ':call mkdp#util#install()', 'for': 'markdown', 'off': 'MarkdownPreview' }
 
+Plug 'neoclide/coc.nvim',{'branch':'release'}
 
 Plug 'dhruvasagar/vim-table-mode', { 'on': 'TableModeToggle' } "表格插件
+
 Plug 'vimwiki/vimwiki'
 
 Plug 'dhruvasagar/vim-table-mode', { 'on': 'TableModeToggle' } "
@@ -181,7 +183,7 @@ func! CompileRunGcc()
         exec "!time go run %"
     elseif &filetype == 'mkd'
         exec "!~/.vim/markdown.pl % > %.html &"
-        exec "!firefox %.html &"
+        exec "!chrome %.html &"
     endif
 endfunc
 
@@ -251,39 +253,38 @@ nmap <Leader>d :ALEDetail<CR>
 " === You Complete ME
 " ===
 " 自动补全配置
-set completeopt=longest,menu	"让Vim的补全菜单行为与一般IDE一致(参考VimTip1228)
-autocmd InsertLeave * if pumvisible() == 0|pclose|endif	"离开插入模式后自动关闭预览窗口
-"回车即选中当前项
-inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"
-"上下左右键的行为 会显示其他信息
-inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
-inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
-inoremap <expr> <PageDown> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<PageDown>"
-inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
+"set completeopt=longest,menu	"让Vim的补全菜单行为与一般IDE一致(参考VimTip1228)
+"autocmd InsertLeave * if pumvisible() == 0|pclose|endif	"离开插入模式后自动关闭预览窗口
+""回车即选中当前项
+"inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"
+""上下左右键的行为 会显示其他信息
+"inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
+"inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
+"inoremap <expr> <PageDown> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<PageDown>"
+"inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
 
 "youcompleteme  修改默认tab  s-tab 和自动补全冲突
-let g:ycm_key_list_select_completion = ['<Down>', '<TAB>']
-let g:ycm_key_list_previous_completion = ['<Up>', '<S-TAB>']
-let g:ycm_confirm_extra_conf=0 "关闭加载.ycm_extra_conf.py提示
-
-let g:ycm_collect_identifiers_from_tags_files=1	" 开启 YCM 基于标签引擎
-let g:ycm_min_num_of_chars_for_completion=2	" 从第2个键入字符就开始罗列匹配项
-let g:ycm_cache_omnifunc=0	" 禁止缓存匹配项,每次都重新生成匹配项
-let g:ycm_seed_identifiers_with_syntax=1	" 语法关键字补全
+"let g:ycm_key_list_select_completion = ['<Down>', '<TAB>']
+"let g:ycm_key_list_previous_completion = ['<Up>', '<S-TAB>']
+"let g:ycm_confirm_extra_conf=0 "关闭加载.ycm_extra_conf.py提示
+"let g:ycm_collect_identifiers_from_tags_files=1	" 开启 YCM 基于标签引擎
+"let g:ycm_min_num_of_chars_for_completion=2	" 从第2个键入字符就开始罗列匹配项
+"let g:ycm_cache_omnifunc=0	" 禁止缓存匹配项,每次都重新生成匹配项
+"let g:ycm_seed_identifiers_with_syntax=1	" 语法关键字补全
 "force recomile with syntastic
-"nnoremap <F5> :YcmForceCompileAndDiagnostics<CR>	
+"nnoremap <F5> :YcmForceCompileAndDiagnostics<CR>
 "nnoremap <leader>lo :lopen<CR>	"open locationlist
 "nnoremap <leader>lc :lclose<CR> "close locationlist
 "inoremap <leader><leader> <C-x><C-o>
  
 "在注释输入中也能补全
-let g:ycm_complete_in_comments = 1
+"let g:ycm_complete_in_comments = 1
 "在字符串输入中也能补全
-let g:ycm_complete_in_strings = 1
+"let g:ycm_complete_in_strings = 1
 "注释和字符串中的文字也会被收入补全
-let g:ycm_collect_identifiers_from_comments_and_strings = 0
+"let g:ycm_collect_identifiers_from_comments_and_strings = 0
 "跳转到定义处
-nnoremap <leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR>  
+"nnoremap <leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR>  
 "let g:ycm_python_interpreter_path = "/Library/Frameworks/Python.framework/Versions/3.8/bin/python3.8"
 "let g:ycm_python_binary_path = "/Library/Frameworks/Python.framework/Versions/3.8/bin/python3.8"
 
@@ -299,9 +300,37 @@ let g:gruvbox_gruvbox_contrast_dark = "hard"
 let g:gruvbox_termcolors = '256'
 
 " ===
+" === coc
+" ===
+" fix the most annoying bug that coc has
+silent! au BufEnter,BufRead,BufNewFile * silent! unmap if
+"coc插件管理，如报错请检查ss是否关闭,node.js是否已安装。
+let g:coc_global_extensions = ['coc-json', 'coc-css', 'coc-python', 'coc-lists', 'coc-yank', 'coc-git']
+
+set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+
+"使用<tab>触发完成并导航至下一个完整项 
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~ '\s'
+endfunction
+
+inoremap <silent><expr> <Tab>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<Tab>" :
+      \ coc#refresh()
+
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+
+"可视化剪贴板,需要coc-yank"
+nnoremap <silent> <Leader>y  :<C-u>CocList -A --normal yank<cr>
+
+" ===
 " === MarkdownPreview -----markdown扩展
 " ===
-let g:mkdp_auto_start = 1
+let g:mkdp_auto_start = 0 
 let g:mkdp_auto_close = 1
 let g:mkdp_refresh_slow = 0
 let g:mkdp_command_for_global = 0
@@ -323,7 +352,7 @@ let g:mkdp_markdown_css = ''
 let g:mkdp_highlight_css = ''
 let g:mkdp_port = ''
 let g:mkdp_page_title = '「${name}」'
-
+nmap <LEADER>s <Plug>MarkdownPreview
 
 " ===
 " === Python-syntax  --语法高亮插件 开启会导致尾部空格出现红色
@@ -342,6 +371,10 @@ set expandtab
 set autoindent
 set fileformat=unix
 
+" ===
+" === AutoFormat代码格式化
+" ===
+nnoremap \f :Autoformat<CR>
 
 " ===
 " === tagbar 标签插件

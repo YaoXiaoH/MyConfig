@@ -27,7 +27,7 @@ zinit light zdharma/fast-syntax-highlighting
 zinit light zsh-users/zsh-autosuggestions
 
 # 补全快捷键
-# bindkey '^ ' autosuggest-accept
+bindkey '^ ' autosuggest-accept
 
 # 加载 OMZ 的 git 库(本地)
 zinit snippet ~/.oh-my-zsh/lib/git.zsh

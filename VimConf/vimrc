@@ -5,7 +5,7 @@ set scrolloff=5 "浏览时底部始终冻结5行
 set showmatch "高亮显示对应的括号
 set belloff=all "不发出嘟嘟提示音"
 "set matchtime=5 "括号高亮时间(十分之一秒)
-"set cursorline "当前行高亮
+set cursorline "当前行高亮
 let g:mapleader=" "
 set clipboard=unnamed,unnamedplus  "y/p/d等命令可以复制到系统剪贴板
 au BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|else|exe "norm $"|endif|endif  "记住上次编辑光标位置
@@ -18,7 +18,7 @@ inoremap ' ''<ESC>i
 inoremap " ""<ESC>i
 inoremap ( ()<ESC>i
 inoremap [ []<ESC>i
-" inoremap { {<CR>}<ESC>O
+inoremap { {<CR>}<ESC>O
 
 "默认指令超时是 1000 ms，如果不想那么长的话，你可以在 vimrc 中设置更短一些
 "set timeoutlen=200
@@ -28,7 +28,6 @@ nnoremap J 5j
 noremap L $
 noremap H ^
 noremap <LEADER><CR> :nohlsearch<CR> "取消搜索高亮
-"inoremap <LEADER><LEADER> <Right> "插入模式光标移动
 
 
 "分屏快捷键
@@ -97,7 +96,7 @@ let &t_ut='' "背景色清除(透明)
 set backspace=indent,eol,start " 允许退格键删除缩进、换行符、允许删除进入插入模式前已有的内容
 set mouse=a "允许使用鼠标操作
 set encoding=utf-8
-set number "显示行号
+"set number "显示行号
 set relativenumber "显示以行为中心的行号
 let &t_SI = "\<Esc>]50;CursorShape=1\x7" "切换命令与插入模式下的光标样式
 let &t_SR = "\<Esc>]50;CursorShape=2\x7"
@@ -115,11 +114,11 @@ Plug 'Chiel92/vim-autoformat' "代码格式化
 
 Plug 'junegunn/vim-easy-align' "多行快速对齐
 
-Plug 'tpope/vim-fugitive' "Git管理器
-
 Plug 'junegunn/vim-peekaboo' "寄存器可视化
 
 Plug 'bling/vim-bufferline' "vim缓冲线
+"缓冲区文件名(状态)是否在命令区显示
+let g:bufferline_echo = 0
 
 Plug 'vim-airline/vim-airline-themes' "状态栏主题
 let g:airline_theme='badwolf'
@@ -127,11 +126,13 @@ let g:airline_theme='badwolf'
 Plug 'tpope/vim-fugitive' "状态栏git集成
 
 "主题配色
-Plug 'connorholyday/vim-snazzy'
+
 Plug 'morhetz/gruvbox'
 Plug 'vim-airline/vim-airline' "状态栏信息
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }  "触发时才加载
 Plug 'Xuyuanp/nerdtree-git-plugin' "git图标扩展
+
+
 
 "自动补全 如果提示shtudown则运行 cd ~/.vim/plugged/YouCompleteMe./install.py
 "Plug 'Valloric/YouCompleteMe'
@@ -141,17 +142,20 @@ Plug 'dense-analysis/ale'
 " Taglist 查看标签与修改历史记录
 Plug 'majutsushi/tagbar', { 'on': 'TagbarOpenAutoClose' }
 
+
 " Markdown --md文件实时预览 无法使用的话请检查yarn是否安装
 " 如果无法启动预览，请到插件的 app 目录执行 yarn install 或者删了重新装。
 Plug 'iamcco/markdown-preview.nvim', { 'do': ':call mkdp#util#install()', 'for': 'markdown', 'off': 'MarkdownPreview' }
 
 Plug 'neoclide/coc.nvim',{'branch':'release'}
 
+"Plug 'SkyLeach/pudb.vim' "增加断点并开启调试pudb调试(貌似只有nvim可用)
+
 Plug 'dhruvasagar/vim-table-mode', { 'on': 'TableModeToggle' } "表格插件
 
-Plug 'vimwiki/vimwiki'
+Plug 'skywind3000/asyncrun.vim' "后台运行shell命令(配合运行代码插件)
 
-Plug 'dhruvasagar/vim-table-mode', { 'on': 'TableModeToggle' } "
+Plug 'vimwiki/vimwiki' "笔记本工具
 
 Plug 'nathanaelkane/vim-indent-guides' "缩进颜色显示
 
@@ -159,34 +163,36 @@ call plug#end()  "结束
 
 "*************************************************
 
-"一键运行脚本
-map <F5> :call CompileRunGcc()<CR>
+"一键运行python脚本
+nnoremap <F5> :call CompileRunGcc()<cr>
+
+"如果存在'set_trace()'断点则不会打印输出内容
 func! CompileRunGcc()
-    exec "w"
-    if &filetype == 'c'
-        exec "!g++ % -o %<"
-        exec "!time ./%<"
-    elseif &filetype == 'cpp'
-        exec "!g++ % -o %<"
-        exec "!time ./%<"
-    elseif &filetype == 'java'
-        exec "!javac %"
-        exec "!time java %<"
-    elseif &filetype == 'sh'
-        :!time bash %
-    elseif &filetype == 'python'
-        exec "!time python3.8 %"
-    elseif &filetype == 'html'
-        exec "!firefox % &"
-    elseif &filetype == 'go'
-        exec "!go build %<"
-        exec "!time go run %"
-    elseif &filetype == 'mkd'
-        exec "!~/.vim/markdown.pl % > %.html &"
-        exec "!chrome %.html &"
-    endif
+          exec "w"
+          if &filetype == 'python'
+                  if search("@profile")
+                          exec "AsyncRun kernprof -l -v %"
+                          exec "copen"
+                          exec "wincmd p"
+                  elseif search("set_trace()")
+                          exec "!python3 %"
+                  else
+                          exec "AsyncRun -raw python3 %"
+                          exec "copen"
+                          exec "wincmd p"
+                  endif
+          endif
+
 endfunc
 
+" ===
+" === 代码折叠
+" ===
+" Enable folding
+"set foldmethod=indent
+"set foldlevel=99
+" 折叠代码快捷键 
+"nnoremap <space> za
 
 
 " ==
@@ -225,11 +231,19 @@ let g:NERDTreeIndicatorMapCustom = {
 " ===
 " === ale 语法提示
 " ===
+
+" Set this. Airline will handle the rest.
+let g:airline#extensions#ale#enabled = 1
+
 let b:ale_linters = ['flake8']
-let b:ale_fixers = ['autopep8']
+let b:ale_fixers = ['yapf']
 "始终开启标志列
-let g:ale_sign_column_always = 1
-let g:ale_set_highlights = 0
+let g:ale_sign_column_always = 0
+"错误高亮显示
+let g:ale_set_highlights = 1
+"在错误处高亮的颜色
+highlight ALEWarning ctermbg=red
+highlight AlEError ctermbg=white
 "自定义error和warning图标
 let g:ale_sign_error = '✗'
 let g:ale_sign_warning = '⚡'
@@ -304,8 +318,31 @@ let g:gruvbox_termcolors = '256'
 " ===
 " fix the most annoying bug that coc has
 silent! au BufEnter,BufRead,BufNewFile * silent! unmap if
+
 "coc插件管理，如报错请检查ss是否关闭,node.js是否已安装。
-let g:coc_global_extensions = ['coc-json', 'coc-css', 'coc-python', 'coc-lists', 'coc-yank', 'coc-git']
+let g:coc_global_extensions = ['coc-json', 'coc-css', 'coc-python', 'coc-lists', 'coc-yank', 'coc-git', 'coc-translator']
+
+" popup 翻译快捷键
+nmap <LEADER>t <Plug>(coc-translator-p)
+vmap <LEADER>t <Plug>(coc-translator-pv)
+
+"命令行高度(更好的显示coc消息)
+set cmdheight=2
+
+" if hidden is not set, TextEdit might fail.
+set hidden
+
+" You will have bad experience for diagnostic messages when it's default 4000.
+set updatetime=300
+
+"总是显示左侧标志列(为空也显示)
+"set signcolumn=yes
+
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+nmap <leader>rn <Plug>(coc-rename)
 
 set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
@@ -361,8 +398,9 @@ nmap <LEADER>s <Plug>MarkdownPreview
 "let g:python_slow_sync = 0 "慢速显示
 
 " ===
-" === py文件格式设置
+" === 各类文件格式(缩进)设置
 " ===
+au BufNewFile,BufRead *.py
 set tabstop=4
 set softtabstop=4
 set shiftwidth=4
@@ -370,6 +408,11 @@ set textwidth=79
 set expandtab
 set autoindent
 set fileformat=unix
+
+au BufNewFile,BufRead *.js,*.html,*.css
+    \ set tabstop=2 |
+    \ set softtabstop=2 |
+    \ set shiftwidth=2 |
 
 " ===
 " === AutoFormat代码格式化

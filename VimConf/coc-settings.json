@@ -1,0 +1,21 @@
+{
+	"yank.enableCompletion" : false,
+    "yank.highlight.duration" : 500,
+    "git.enableGlobalStatus":true,
+    "git.enableGutters": false,
+    "git.realtimeGutters": false,
+	"git.addGBlameToBufferVar": false,
+	"git.addGBlameToVirtualText": false,
+    "translator.engines":["google"],
+    "python.linting.pylintEnabled":false,
+    "python.formatting.provider":"yapf",
+	"coc.preferences.formatOnSaveFiletypes": [
+		"javascript",
+		"html",
+		"css",
+		"python"
+	],
+	"python.jediEnabled": true,
+	"python.autoComplete.addBrackets": true
+}
+
